@@ -10,6 +10,16 @@ const Mutation = {
 
     // PRISMA 2 IMPLEMENTATION HERE 
 
+    // TODO WHEN YOU GET BACK: Environment variables for JWT aren't set up currently. 
+    // You will probably have to set up env-cmd and modify the 'dev' command.
+
+    const user = await prisma.user.create({
+      data: {
+        ...args.data,
+        password
+      }
+    });
+
     // const user = await prisma.mutation.createUser({
     //   data: {
     //     ...args.data,
