@@ -1,0 +1,48 @@
+type Query {
+  users: [User!]!
+  me: User!
+}
+
+type Mutation {
+  createUser(data: CreateUserInput!): AuthPayload!
+  deleteUser: User!
+  updateUser(data: UpdateUserInput!): User!
+  login(email: String!, password: String!): AuthPayload!
+}
+
+# type Subscription {
+
+# }
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+input CreateUserInput {
+  username: String!
+  email: String!
+  password: String!
+  bio: String
+}
+
+input UpdateUserInput {
+  username: String
+  email: String
+  password: String
+  bio: String
+}
+
+type User {
+  id: ID!
+  username: String!
+  email: String
+  password: String
+  bio: String
+}
+
+enum MutationType {
+  CREATED
+  UPDATED
+  DELETED
+}
