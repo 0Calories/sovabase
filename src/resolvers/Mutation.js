@@ -8,10 +8,9 @@ const Mutation = {
   async createUser(parent, args, { prisma }, info) {
     const password = await hashPassword(args.data.password);
 
-    // PRISMA 2 IMPLEMENTATION HERE 
-
-    // TODO WHEN YOU GET BACK: Environment variables for JWT aren't set up currently. 
-    // You will probably have to set up env-cmd and modify the 'dev' command.
+    if (args.data.username.length < 4) {
+      throw new Error('Username must be at least 4 characters long');
+    }
 
     const user = await prisma.user.create({
       data: {
@@ -20,65 +19,66 @@ const Mutation = {
       }
     });
 
-    // const user = await prisma.mutation.createUser({
-    //   data: {
-    //     ...args.data,
-    //     password
-    //   }
-    // });
-
     return {
       user,
       token: generateToken(user.id)
     };
   },
-  // async deleteUser(parent, args, { prisma, request }, info) {
-  //   const userId = getUserId(request);
 
-  //   return await prisma.mutation.deleteUser({
-  //     where: {
-  //       id: userId
-  //     }
-  //   }, info);
-  // },
-  // async updateUser(parent, args, { prisma, request }, info) {
-  //   const userId = getUserId(request);
+  async deleteUser(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request);
 
-  //   if (typeof args.data.password === 'string') {
-  //     args.data.password = await hashPassword(args.data.password);
-  //   }
+    return await prisma.user.delete({
+      where: {
+        id: userId
+      }
+    }, info);
+  },
 
-  //   return await prisma.mutation.updateUser({
-  //     where: {
-  //       id: userId
-  //     },
-  //     data: args.data
-  //   }, info);
-  // },
-  // async login(parent, args, { prisma }, info) {
-  //   const { email, password } = args;
+  async updateUser(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request);
 
-  //   const user = await prisma.query.user({
-  //     where: {
-  //       email
-  //     }
-  //   });
+    if (typeof args.data.password === 'string') {
+      args.data.password = await hashPassword(args.data.password);
+    }
 
-  //   if (!user) {
-  //     throw new Error('Invalid credentials');
-  //   }
+    return await prisma.user.update({
+      where: {
+        id: userId
+      },
+      data: args.data
+    }, info);
+  },
 
-  //   const isMatch = await bcrypt.compare(password, user.password);
+  async login(parent, args, { prisma }, info) {
+    const { email, username, password } = args;
 
-  //   if (!isMatch) {
-  //     throw new Error('Invalid credentials');
-  //   }
+    if (!email && !username) {
+      throw new Error('Must provide an email address or username');
+    }
 
-  //   return {
-  //     user,
-  //     token: generateToken(user.id)
-  //   };
-  // },
+    const user = await prisma.user.findOne({
+      where: {
+        email,
+        username
+      }
+    });
+
+    if (!user) {
+      throw new Error('Invalid credentials');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      throw new Error('Invalid credentials');
+    }
+
+    return {
+      user,
+      token: generateToken(user.id)
+    };
+  }
 };
 
 export { Mutation as default };
