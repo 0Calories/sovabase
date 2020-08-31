@@ -65,7 +65,7 @@ const Mutation = {
     });
 
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new Error('Invalid credentials: user not found');
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

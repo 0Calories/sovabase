@@ -25,4 +25,18 @@ const login = gql`
   }
 `;
 
-export { createUser, login };
+const getUsers = gql`
+  query($query: String) {
+    users(query: $query) {
+      id
+      username
+      bio
+      email
+      password
+    }
+  }
+`;
+
+
+
+export { createUser, login, getUsers };

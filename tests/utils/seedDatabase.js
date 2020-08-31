@@ -6,9 +6,9 @@ const prisma = new PrismaClient();
 
 const userOne = {
   input: {
-    username: 'Jen123',
-    email: 'jen@example.com',
-    password: bcrypt.hashSync('Red098!@#$')
+    username: 'Daniel',
+    email: 'daniel@example.com',
+    password: bcrypt.hashSync('Daniel123')
   },
   user: undefined,
   jwt: undefined

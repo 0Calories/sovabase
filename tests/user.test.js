@@ -6,7 +6,7 @@ import "regenerator-runtime/runtime";
 
 import server from '../src/server';
 import seedDatabase, { userOne } from './utils/seedDatabase';
-import { createUser, login } from './utils/operations';
+import { createUser, login, getUsers } from './utils/operations';
 
 const prisma = new PrismaClient();
 const URL = 'http://localhost:4000';
@@ -43,53 +43,56 @@ test('Should create a new user', async () => {
   expect(user.username).toBe(variables.data.username);
 });
 
-// test('Should expose public profiles', async () => {
-// const response = await client.query({ query: getUsers });
+test('Should expose public profiles', async () => {
+  const response = await request(URL, getUsers);
 
-// expect(response.data.users.length).toBe(2);
-// expect(response.data.users[0].email).toBe(null);
-// expect(response.data.users[0].name).toBe('Jen');
-// });
+  expect(response.users[0].username).toBe(userOne.input.username);
+
+  // Emails and passwords should not be exposed!
+  expect(response.users[0].email).toBe(null);
+  expect(response.users[0].password).toBe(null);
+});
 
 
 test('Should not login with bad credentials', async () => {
   const variables = {
-    email: 'jen@example.com',
+    email: userOne.input.email,
     password: 'asdfasdfasd'
   };
 
   await expect(request(URL, login, variables)).rejects.toThrow();
-  // await expect(client.mutate({ mutation: login, variables })).rejects.toThrow();
 });
 
-test('Should login with correct credentials, when either username or email is provided', async () => {
-  const variables1 = {
-    email: 'jen@example.com',
-    password: 'Red098!@#$'
+test('Should login with correct credentials using email', async () => {
+  const variables = {
+    email: userOne.input.email,
+    password: 'Daniel123'
   };
 
-  const variables2 = {
-    username: 'Jen123',
-    password: 'Red098!@#$'
+  const response = await request(URL, login, variables);
+  expect(response.login.token).toBeTruthy();
+});
+
+test('Should login with correct credentials using username', async () => {
+  const variables = {
+    username: userOne.input.username,
+    password: 'Daniel123'
   };
 
-  const response1 = await request(URL, login, variables1);
-  expect(response1.login.token).toBeTruthy();
-
-  const response2 = await request(URL, login, variables2);
-  expect(response2.login.token).toBeTruthy();
+  const response = await request(URL, login, variables);
+  expect(response.login.token).toBeTruthy();
 });
 
 test('Should not create user with a short password', async () => {
-  // const variables = {
-  //   data: {
-  //     name: 'Eric Cao',
-  //     email: 'eric@example.com',
-  //     password: 'pass'
-  //   }
-  // };
+  const variables = {
+    data: {
+      name: 'Eric Cao',
+      email: 'eric@example.com',
+      password: 'pass'
+    }
+  };
 
-  // await expect(client.mutate({ mutation: createUser, variables })).rejects.toThrow();
+  await expect(request(URL, createUser, variables)).rejects.toThrow();
 });
 
 test('Should fetch user profile', async () => {
