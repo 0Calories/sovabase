@@ -33,9 +33,9 @@ model Post {
   title      String
   body       String?
   likes      Int?
-  author_id  Int
+  authorId   Int
   created_at DateTime? @default(now())
   updated_at DateTime? @default(now())
-  author     User      @relation(fields: [author_id], references: [id])
+  author     User      @relation(fields: [authorId], references: [id])
   comments   Comment[]
 }

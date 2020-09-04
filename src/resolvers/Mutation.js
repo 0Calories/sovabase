@@ -78,7 +78,21 @@ const Mutation = {
       user,
       token: generateToken(user.id)
     };
+  },
+
+  async createPost(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request);
+
+    return await prisma.post.create({
+      data: {
+        ...args.data,
+        author: {
+          connect: { id: userId }
+        }
+      },
+      include: { author: true }
+    }, info);
   }
 };
 
-export { Mutation as default };
+export default Mutation;
