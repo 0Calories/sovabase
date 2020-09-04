@@ -32,7 +32,7 @@ model Post {
   id         Int       @default(autoincrement()) @id
   title      String
   body       String?
-  likes      Int?
+  likes      Int?      @default(0)
   authorId   Int
   created_at DateTime? @default(now())
   updated_at DateTime? @default(now())

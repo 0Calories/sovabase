@@ -10,6 +10,7 @@ type Mutation {
   login(email: String, username: String, password: String!): AuthPayload!
 
   createPost(data: CreatePostInput!): Post!
+  deletePost(id: Int!): Post!
 }
 
 # type Subscription {
@@ -41,7 +42,7 @@ input CreatePostInput {
 }
 
 type User {
-  id: ID!
+  id: Int!
   username: String!
   email: String
   password: String
@@ -49,7 +50,7 @@ type User {
 }
 
 type Post {
-  id: ID!
+  id: Int!
   title: String!
   body: String
   author: User!

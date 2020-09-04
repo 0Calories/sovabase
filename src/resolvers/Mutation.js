@@ -92,6 +92,30 @@ const Mutation = {
       },
       include: { author: true }
     }, info);
+  },
+
+  async deletePost(parent, args, { prisma, request }, info) {
+    const { id } = args;
+    const userId = getUserId(request);
+
+    // TODO: This is kind of sloppy but the only way to do this at the moment.
+    // When Prisma 2 reintroduces the "exists" operation, use that here instead.
+    const posts = await prisma.post.findMany({
+      where: {
+        id,
+        AND: [{ authorId: userId }]
+      }
+    });
+
+    if (!posts[0]) {
+      throw new Error('Post not found or unauthorized operation');
+    }
+
+    return await prisma.post.delete({
+      where: {
+        id
+      }
+    }, info);
   }
 };
 
